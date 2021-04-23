@@ -26,7 +26,7 @@ let tests = testList "Service Bus Tests" [
                         sku Standard
                     })
             }
-            |> findAzureResourcesByType<SBNamespace> Arm.ServiceBus.namespaces dummyClient.SerializationSettings
+            |> findAzureResourcesByType<SBNamespace> Arm.ServiceBus.namespaces
             |> List.head
 
         sbNs.Validate()
@@ -252,7 +252,7 @@ let tests = testList "Service Bus Tests" [
 
             let subscriptions =
                 arm { add_resource myServiceBus }
-                |> findAzureResources<SBSubscription> dummyClient.SerializationSettings
+                |> findAzureResources<SBSubscription>
                 |> List.filter(fun s -> s.Name.Contains "debug")
 
             Expect.hasLength subscriptions 2 "Subscription length"

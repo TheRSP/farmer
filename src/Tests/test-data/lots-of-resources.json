@@ -219,14 +219,78 @@
               "type": "Microsoft.Web/serverfarms"
             },
             {
-              "apiVersion": "2020-06-01",
-              "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', 'farmerwebapp1979')]"
-              ],
-              "location": "northeurope",
-              "name": "farmerwebapp1979/Microsoft.AspNetCore.AzureAppServices.SiteExtension",
-              "type": "Microsoft.Web/sites/siteextensions"
-            },
+              "name": "CURRENT_STACK",
+              "value": "dotnetcore"
+            }
+          ]
+        }
+      },
+      "tags": {},
+      "type": "Microsoft.Web/sites"
+    },
+    {
+      "apiVersion": "2014-04-01",
+      "kind": "web",
+      "location": "northeurope",
+      "name": "farmerwebapp1979-ai",
+      "properties": {
+        "ApplicationId": "farmerwebapp1979",
+        "Application_Type": "web",
+        "DisableIpMasking": false,
+        "SamplingPercentage": 100,
+        "name": "farmerwebapp1979-ai"
+      },
+      "tags": {
+        "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', 'farmerwebapp1979')]": "Resource"
+      },
+      "type": "Microsoft.Insights/components"
+    },
+    {
+      "apiVersion": "2018-02-01",
+      "location": "northeurope",
+      "name": "farmerwebapp1979-farm",
+      "properties": {
+        "name": "farmerwebapp1979-farm",
+        "perSiteScaling": false,
+        "reserved": false
+      },
+      "sku": {
+        "capacity": 1,
+        "name": "F1",
+        "size": "0",
+        "tier": "Free"
+      },
+      "tags": {},
+      "type": "Microsoft.Web/serverfarms"
+    },
+    {
+      "apiVersion": "2020-06-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', 'farmerwebapp1979')]"
+      ],
+      "location": "northeurope",
+      "name": "farmerwebapp1979/Microsoft.AspNetCore.AzureAppServices.SiteExtension",
+      "type": "Microsoft.Web/sites/siteextensions"
+    },
+    {
+      "apiVersion": "2020-06-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', 'farmerfuncs1979-ai')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', 'farmerfuncs1979storage')]",
+        "[resourceId('Microsoft.Web/serverfarms', 'farmerfuncs1979-farm')]"
+      ],
+      "identity": {
+        "type": "None"
+      },
+      "kind": "functionapp",
+      "location": "northeurope",
+      "name": "farmerfuncs1979",
+      "properties": {
+        "httpsOnly": false,
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', 'farmerfuncs1979-farm')]",
+        "siteConfig": {
+          "alwaysOn": false,
+          "appSettings": [
             {
               "apiVersion": "2016-08-01",
               "dependsOn": [
@@ -371,18 +435,11 @@
               "dependsOn": [
                 "[resourceId('Microsoft.ServiceBus/namespaces/topics', 'farmerbus1979', 'topic1')]"
               ],
-              "name": "farmerbus1979/topic1/sub1",
-              "properties": {},
-              "resources": [],
-              "type": "Microsoft.ServiceBus/namespaces/topics/subscriptions"
-            },
-            {
-              "apiVersion": "2019-04-15",
-              "location": "global",
-              "name": "farmercdn1979",
-              "properties": {},
-              "sku": {
-                "name": "Standard_Akamai"
+              "resources": {
+                "requests": {
+                  "cpu": 1,
+                  "memoryInGB": 1.5
+                }
               },
               "tags": {},
               "type": "Microsoft.Cdn/profiles"
@@ -415,16 +472,65 @@
               "tags": {},
               "type": "Microsoft.Cdn/profiles/endpoints"
             },
-            {
-              "apiVersion": "2019-12-01",
-              "dependsOn": [],
-              "identity": {
-                "type": "None"
-              },
-              "location": "northeurope",
-              "name": "farmeraci1979",
-              "properties": {
-                "containers": [
+            "name": "source-code"
+          }
+        ]
+      },
+      "tags": {},
+      "type": "Microsoft.ContainerInstance/containerGroups"
+    },
+    {
+      "apiVersion": "2021-01-15",
+      "kind": "GlobalDocumentDB",
+      "location": "northeurope",
+      "name": "testaccount",
+      "properties": {
+        "consistencyPolicy": {
+          "defaultConsistencyLevel": "BoundedStaleness",
+          "maxIntervalInSeconds": 1000,
+          "maxStalenessPrefix": 500
+        },
+        "databaseAccountOfferType": "Standard",
+        "enableFreeTier": false,
+        "publicNetworkAccess": "Enabled"
+      },
+      "tags": {},
+      "type": "Microsoft.DocumentDb/databaseAccounts"
+    },
+    {
+      "apiVersion": "2021-01-15",
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDb/databaseAccounts', 'testaccount')]"
+      ],
+      "name": "testaccount/testdb",
+      "properties": {
+        "options": {
+          "throughput": "400"
+        },
+        "resource": {
+          "id": "testdb"
+        }
+      },
+      "type": "Microsoft.DocumentDb/databaseAccounts/sqlDatabases"
+    },
+    {
+      "apiVersion": "2021-01-15",
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDb/databaseAccounts/sqlDatabases', 'testaccount', 'testdb')]"
+      ],
+      "name": "testaccount/testdb/myContainer",
+      "properties": {
+        "resource": {
+          "id": "myContainer",
+          "indexingPolicy": {
+            "excludedPaths": [
+              {
+                "path": "/excluded/*"
+              }
+            ],
+            "includedPaths": [
+              {
+                "indexes": [
                   {
                     "name": "webserver",
                     "properties": {
@@ -556,9 +662,41 @@
           "variables": {}
         }
       },
-      "resourceGroup": "farmer-deploy",
+      "type": "Microsoft.DocumentDb/databaseAccounts/sqlDatabases/containers"
+    },
+    {
+      "apiVersion": "2021-01-15",
+      "kind": "MongoDB",
+      "location": "northeurope",
+      "name": "testaccountmongo",
+      "properties": {
+        "consistencyPolicy": {
+          "defaultConsistencyLevel": "BoundedStaleness",
+          "maxIntervalInSeconds": 1000,
+          "maxStalenessPrefix": 500
+        },
+        "databaseAccountOfferType": "Standard",
+        "enableFreeTier": false,
+        "publicNetworkAccess": "Enabled"
+      },
       "tags": {},
-      "type": "Microsoft.Resources/deployments"
+      "type": "Microsoft.DocumentDb/databaseAccounts"
+    },
+    {
+      "apiVersion": "2021-01-15",
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDb/databaseAccounts', 'testaccountmongo')]"
+      ],
+      "name": "testaccountmongo/testdbmongo",
+      "properties": {
+        "options": {
+          "throughput": "400"
+        },
+        "resource": {
+          "id": "testdbmongo"
+        }
+      },
+      "type": "Microsoft.DocumentDb/databaseAccounts/mongodbDatabases"
     }
   ]
 }

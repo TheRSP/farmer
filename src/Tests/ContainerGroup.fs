@@ -408,6 +408,24 @@ let tests = testList "Container Group" [
         let dependsOn = jobj.SelectToken("$..resources[?(@.name=='netprofile')].dependsOn")
         Expect.hasLength dependsOn 0 "network profile had dependencies when existing vnet was linked"
     }
+    test "Container network profile with linked vnet in another resource group has empty dependsOn" {
+        let template =
+            arm {
+                add_resources [
+                    networkProfile {
+                        name "netprofile"
+                        link_to_vnet (ResourceId.create(Arm.Network.virtualNetworks, (ResourceName "containerNet"), group="other-res-group"))
+                        subnet "ContainerSubnet"
+                    }
+                ]
+            }
+            |> Deployment.buildWithSuffix "farmer-deploy" None
+        let json = template.Template |> Writer.toJson
+        let jobj = Newtonsoft.Json.Linq.JObject.Parse(json)
+        let subnetId = jobj.SelectToken("..subnet.id") |> string
+        let expectedSubnetId = "[resourceId('other-res-group', 'Microsoft.Network/virtualNetworks/subnets', 'containerNet', 'ContainerSubnet')]"
+        Expect.equal subnetId expectedSubnetId "Generated incorrect subnet ID." 
+    }
     test "Can link a network profile directly to a container group" {
         let profile = networkProfile { name "netprofile" }
         let template =

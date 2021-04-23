@@ -17,7 +17,7 @@ let logicAppResource = ResourceType("Microsoft.Logic/workflows", "").resourceId 
 
 let asAzureResource parentType (ws:DiagnosticSettingsConfig) =
     arm { add_resource ws }
-    |> findAzureResourcesByType<DiagnosticSettingsResource> (Arm.DiagnosticSetting.diagnosticSettingsType parentType) dummyClient.SerializationSettings
+    |> findAzureResourcesByType<DiagnosticSettingsResource> (Arm.DiagnosticSetting.diagnosticSettingsType parentType) 
     |> List.head
 
 let tests = testList "Diagnostic Settings" [

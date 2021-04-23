@@ -19,7 +19,7 @@ let tests = testList "NetworkSecurityGroup" [
                   Location = Location.WestEurope
                   Tags = Map.empty }
             arm { add_resource nsg }
-            |> findAzureResourcesByType<NetworkSecurityGroup> Arm.NetworkSecurityGroup.networkSecurityGroups client.SerializationSettings
+            |> findAzureResourcesByType<NetworkSecurityGroup> Arm.NetworkSecurityGroup.networkSecurityGroups
             |> List.head
         Expect.equal resource.Name "my-nsg" ""
     }
@@ -45,7 +45,7 @@ let tests = testList "NetworkSecurityGroup" [
                 add_resource nsg
                 add_resource acceptRule
             }
-            |> findAzureResourcesByType<SecurityRule> Arm.NetworkSecurityGroup.securityRules client.SerializationSettings
+            |> findAzureResourcesByType<SecurityRule> Arm.NetworkSecurityGroup.securityRules
 
         match rules with
         | [ rule1 ] ->
@@ -78,7 +78,7 @@ let tests = testList "NetworkSecurityGroup" [
             name "my-nsg"
             add_rules [ webPolicy ]
         }
-        let rules = arm { add_resource myNsg } |> findAzureResourcesByType<SecurityRule> Arm.NetworkSecurityGroup.securityRules client.SerializationSettings
+        let rules = arm { add_resource myNsg } |> findAzureResourcesByType<SecurityRule> Arm.NetworkSecurityGroup.securityRules
         match rules with
         | [ rule1 ] ->
             rule1.Validate()
@@ -127,7 +127,7 @@ let tests = testList "NetworkSecurityGroup" [
                 dbPolicy
             ]
         }
-        let rules = arm { add_resource myNsg } |> findAzureResourcesByType<SecurityRule> Arm.NetworkSecurityGroup.securityRules client.SerializationSettings
+        let rules = arm { add_resource myNsg } |> findAzureResourcesByType<SecurityRule> Arm.NetworkSecurityGroup.securityRules
         match rules with
         | [ rule1; rule2; rule3 ] ->
             // Web server access

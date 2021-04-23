@@ -44,9 +44,17 @@ let tests =
                     }
                 ]
             }
+            let cosmosMongo = cosmosDb {
+                name "testdbmongo"
+                account_name "testaccountmongo"
+                kind Mongo
+                throughput 400<CosmosDb.RU>
+                failover_policy CosmosDb.NoFailover
+                consistency_policy (CosmosDb.BoundedStaleness(500, 1000))
+            }
 
             compareResourcesToJson
-                [ sql; storage; web; fns; svcBus; cdn; containerGroup; cosmos ]
+                [ sql; storage; web; fns; svcBus; cdn; containerGroup; cosmos; cosmosMongo ]
                 "lots-of-resources.json"
         }
 
@@ -111,5 +119,28 @@ let tests =
             }
 
             compareResourcesToJson [ storageSource; sb; eventHubGrid ] "event-grid.json"
+        }
+
+        test "Can parse JSON into an ARM template" {
+            let json = """    {
+      "apiVersion": "2019-06-01",
+      "dependsOn": [],
+      "kind": "StorageV2",
+      "location": "northeurope",
+      "name": "jsontest",
+      "properties": {},
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "tags": {},
+      "type": "Microsoft.Storage/storageAccounts"
+    }
+"""
+            let resource = arm { add_resource (Serialization.ofJson<StorageAccount> json) } |> Storage.getStorageResource
+            printfn "%A" resource
+
+            Expect.equal resource.Name "jsontest" "Account name is wrong"
+            Expect.equal resource.Sku.Name "Standard_LRS" "SKU is wrong"
+            Expect.equal resource.Kind "StorageV2" "Kind"
         }
     ]

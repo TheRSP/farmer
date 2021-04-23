@@ -5,20 +5,13 @@ open Expecto
 open Farmer
 open Farmer.Builders
 open Farmer.Arm
-open Newtonsoft.Json
-open Microsoft.Rest
+open TestHelpers
 open Microsoft.Azure.Management.ResourceManager
-open Microsoft.Azure.Management.ResourceManager.Models
+open Microsoft.Rest
 open Microsoft.Azure.Management.Resources.Models
-open Newtonsoft.Json
-open System.IO
 open Newtonsoft.Json.Linq
 
 let dummyClient = new ResourceManagementClient (Uri "http://management.azure.com", TokenCredentials "NotNullOrWhiteSpace")
-
-let createSimpleTemplate parameters = 
-    (createSimpleDeployment parameters).Template
-    |> Writer.TemplateGeneration.processTemplate
 
 let toTemplate deployment =
     Deployment.getTemplate "farmer-resources"  deployment
@@ -33,7 +26,7 @@ let tests = testList "Template" [
     test "Can create a basic template" {
         let arm = arm { location Location.NorthEurope } 
         let template = arm |> toTemplate
-        let resources = arm |> findAzureResources<ResourceGroup> dummyClient.SerializationSettings
+        let resources = arm |> findAzureResources<ResourceGroup>
         Expect.hasLength resources 1 ""
         Expect.equal resources.[0].Location Location.NorthEurope.ArmValue ""
         Expect.isEmpty template.outputs "outputs should be empty"
@@ -55,11 +48,9 @@ let tests = testList "Template" [
         Expect.equal (getValue "$.outputs.p2.value") (sprintf "[reference('%s').outputs.p2.value]" nestedDeplName)  ""
     }
     test "Processes parameters correctly" {
-        let template = createSimpleTemplate [ "p1"; "p2" ]
+        let template = createSimpleDeployment [ "p1"; "p2" ]
 
-        Expect.equal template.parameters.["p1"].``type`` "securestring" ""
-        Expect.equal template.parameters.["p2"].``type`` "securestring" ""
-        Expect.equal template.parameters.Count 2 ""
+        Expect.equal (template.Template.Parameters |> List.length) 2 ""
     }
 
     test "Can create a single resource" {
@@ -80,7 +71,7 @@ let tests = testList "Template" [
                 storageAccount { name "test2" }
             ]
         }
-        let storages = template |> findAzureResourcesByType<obj> Arm.Storage.storageAccounts (JsonSerializerSettings())
+        let storages = template |> findAzureResourcesByType<obj> Arm.Storage.storageAccounts
 
         Expect.hasLength storages 2 "Should be two resources"
     }
@@ -92,7 +83,7 @@ let tests = testList "Template" [
                 storageAccount { name "test" }
             ]
         }
-        let storages = template |> findAzureResourcesByType<obj> Arm.Storage.storageAccounts (JsonSerializerSettings())
+        let storages = template |> findAzureResourcesByType<obj> Arm.Storage.storageAccounts
 
         Expect.hasLength storages 1 "Should be a single resource"
     }

@@ -14,7 +14,7 @@ let dummyClient = new OperationalInsightsManagementClient (Uri "http://managemen
 
 let asAzureResource (ws:WorkspaceConfig) =
     arm { add_resource ws }
-    |> findAzureResourcesByType<Workspace> Arm.LogAnalytics.workspaces dummyClient.SerializationSettings
+    |> findAzureResourcesByType<Workspace> Arm.LogAnalytics.workspaces
     |> List.head
     |> fun r ->
         r.Validate()

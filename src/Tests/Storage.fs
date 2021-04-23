@@ -11,16 +11,13 @@ open System
 
 /// Client instance needed to get the serializer settings.
 let client = new StorageManagementClient(Uri "http://management.azure.com", TokenCredentials "NotNullOrWhiteSpace")
-let getStorageResource = findAzureResourcesByType<StorageAccount> Arm.Storage.storageAccounts client.SerializationSettings >> List.head
+let getStorageResource = findAzureResourcesByType<StorageAccount> Arm.Storage.storageAccounts >> List.head
 
 let tests = testList "Storage Tests" [
     test "Can create a basic storage account" {
         let resource =
-            let account = storageAccount {
-                name "mystorage123"
-            }
-            arm { add_resource account }
-            |> getStorageResource
+            let account = storageAccount { name "mystorage123" }
+            arm { add_resource account } |> getStorageResource
 
         resource.Validate()
         Expect.equal resource.Name "mystorage123" "Account name is wrong"

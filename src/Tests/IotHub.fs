@@ -27,7 +27,7 @@ let tests = testList "IOT Hub" [
             }
 
             arm { add_resource hub }
-            |> findAzureResourcesByType<IotHubDescription> Arm.Devices.iotHubs iotClient.SerializationSettings
+            |> findAzureResourcesByType<IotHubDescription> Arm.Devices.iotHubs
             |> List.head
 
         Expect.equal resource.Name "isaacsuperhub" "Hub name does not match"
@@ -48,7 +48,7 @@ let tests = testList "IOT Hub" [
             arm { add_resource hub }
             |> getResources
             |> (fun x -> x.[2].JsonModel)
-            |> SafeJsonConvert.SerializeObject
+            |> Serialization.toJson
             |> fun json -> SafeJsonConvert.DeserializeObject<ProvisioningServiceDescription>(json, provisioningClient.SerializationSettings)
 
         Expect.equal resource.Sku.Capacity (Nullable 1L) "Sku capacity is incorrect"
