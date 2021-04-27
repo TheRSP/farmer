@@ -12,7 +12,7 @@ open System
 let client = new NetworkManagementClient(Uri "http://management.azure.com", TokenCredentials "NotNullOrWhiteSpace")
 let toAzResource (er:ExpressRouteConfig) =
     arm { add_resource er }
-    |> findAzureResourcesByType<ExpressRouteCircuit> Arm.Network.expressRouteCircuits
+    |> findAzureResourcesByType<ExpressRouteCircuit> Arm.Network.expressRouteCircuits client.SerializationSettings
 let tests = testList "ExpressRoute" [
     test "Can create a basic ExR" {
         let resource =

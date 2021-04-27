@@ -16,7 +16,7 @@ let getResourceAtIndex x = x |> getResourceAtIndex dummyClient.SerializationSett
 
 let asAzureResource (cdn:CdnConfig) =
     arm { add_resource cdn }
-    |> findAzureResourcesByType<Profile> Arm.Cdn.profiles
+    |> findAzureResourcesByType<Profile> Arm.Cdn.profiles dummyClient.SerializationSettings
     |> List.head
     |> fun r ->
         r.Validate()

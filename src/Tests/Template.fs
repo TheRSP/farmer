@@ -71,7 +71,7 @@ let tests = testList "Template" [
                 storageAccount { name "test2" }
             ]
         }
-        let storages = template |> findAzureResourcesByType<obj> Arm.Storage.storageAccounts
+        let storages = template |> findAzureResourcesByType<obj> Arm.Storage.storageAccounts dummyClient.SerializationSettings
 
         Expect.hasLength storages 2 "Should be two resources"
     }
@@ -83,7 +83,7 @@ let tests = testList "Template" [
                 storageAccount { name "test" }
             ]
         }
-        let storages = template |> findAzureResourcesByType<obj> Arm.Storage.storageAccounts
+        let storages = template |> findAzureResourcesByType<obj> Arm.Storage.storageAccounts dummyClient.SerializationSettings
 
         Expect.hasLength storages 1 "Should be a single resource"
     }

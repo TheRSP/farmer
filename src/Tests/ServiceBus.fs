@@ -26,7 +26,7 @@ let tests = testList "Service Bus Tests" [
                         sku Standard
                     })
             }
-            |> findAzureResourcesByType<SBNamespace> Arm.ServiceBus.namespaces
+            |> findAzureResourcesByType<SBNamespace> Arm.ServiceBus.namespaces dummyClient.SerializationSettings
             |> List.head
 
         sbNs.Validate()

@@ -15,7 +15,7 @@ let client = new SignalRManagementClient(Uri "http://management.azure.com", Toke
 
 let toAzResource (mySignalR:SignalRConfig) = 
     arm { add_resource mySignalR }
-    |> findAzureResourcesByType<SignalRResource> Arm.SignalRService.signalR
+    |> findAzureResourcesByType<SignalRResource> Arm.SignalRService.signalR client.SerializationSettings
 
 let tests = testList "SignalR" [
     test "Can create a basic SignalR account" {

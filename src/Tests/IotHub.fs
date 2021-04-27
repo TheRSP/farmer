@@ -27,7 +27,7 @@ let tests = testList "IOT Hub" [
             }
 
             arm { add_resource hub }
-            |> findAzureResourcesByType<IotHubDescription> Arm.Devices.iotHubs
+            |> findAzureResourcesByType<IotHubDescription> Arm.Devices.iotHubs iotClient.SerializationSettings
             |> List.head
 
         Expect.equal resource.Name "isaacsuperhub" "Hub name does not match"

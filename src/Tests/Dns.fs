@@ -35,7 +35,7 @@ let tests = testList "DNS Zone" [
 
         let dnsZones =
             resources
-            |> findAzureResourcesByType<Zone> Arm.Dns.zones
+            |> findAzureResourcesByType<Zone> Arm.Dns.zones client.SerializationSettings
             |> Array.ofList
 
         Expect.equal dnsZones.[0].Name "farmer.com" "DNS Zone name is wrong"
